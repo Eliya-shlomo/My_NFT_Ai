@@ -2,9 +2,9 @@
 import { useState } from 'react';
 import axios from 'axios';
 import Web3 from 'web3';
-import PhotoNFT from '../artifacts/contracts/Nft.sol/PhotoNFT.json';
+import {abi,bytecode} from './PhotoNFTabi.json';
 
-const contractAddress = 'YOUR_DEPLOYED_CONTRACT_ADDRESS';
+const contractAddress = '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853';
 
 export default function Home() {
   const [prompt, setPrompt] = useState('');
@@ -14,7 +14,7 @@ export default function Home() {
 
   const handleGenerateImage = async () => {
     try {
-      const response = await axios.post('/api/generate-image', { prompt });
+      const response = await axios.post('/api/handler', { prompt });
       setImageUrl(response.data.imageUrl);
     } catch (error) {
       console.error('Error generating image:', error);
@@ -32,10 +32,10 @@ export default function Home() {
 
   const connectWallet = async () => {
     if (window.ethereum) {
-      const _web3 = new Web3(window.ethereum);
+      const _web3 = new Web3(process.env.ALCHEMY_URL_KEY);
       await window.ethereum.request({ method: 'eth_requestAccounts' });
       setWeb3(_web3);
-      const _contract = new _web3.eth.Contract(PhotoNFT.abi, contractAddress);
+      const _contract = new _web3.eth.Contract(abi, contractAddress);
       setContract(_contract);
     } else {
       alert('Please install MetaMask to use this feature');
