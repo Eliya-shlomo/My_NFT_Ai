@@ -1,23 +1,31 @@
-import axios from 'axios';
+import {Configuration, OpenAIAPI} from 'openai';
+import {writeFileSync} from 'fs';
+import { fetch } from 'openai/_shims/fetch';
 
-export default async function handler(req, res) {
-  const { prompt } = req.body;
+const configuration = new Configuration({
+  apiKey: 'my-api-key',
+});
 
-  try {
-    const response = await axios.post('https://api.openai.com/v1/images/generate', {
-      prompt,
-      n: 1,
-      size: '512x512'
-    }, {
-      headers: {
-        'Authorization': `Bearer YOUR_OPENAI_API_KEY`,
-        'Content-Type': 'application/json'
-      }
-    });
+const openai = new OpenAIAPI(configuration);
 
-    res.status(200).json({ imageUrl: response.data.data[0].url });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to generate image' });
-  }
-}
+const prompt = "Astronaut kicks a ball on the beach";
+
+const result = await openai.createImage({
+  prompt,
+  n: 1,
+  size: "1024x1024",
+  user: "eliyashlomo7@gmail.com"
+});
+
+const url =result.data.data[0].url;
+console.log(url);
+
+//save url on disc
+const imaResult = await fetch(url);
+const blob = await imaResult.blob();
+const buffer = Buffer.from(await blob.arrayBuffer());
+writeFileSync(`./img${Date.now()}.png`,buffer);
+
+
+
+
